@@ -18,17 +18,14 @@ public class Writer {
     @GeneratedValue
     private int id;
 
-    @Column(name = "firstname")
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "lastname")
+    @Column(name = "last_name")
     private String lastName;
 
     @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    /*@JoinTable(name = "posts",
-            joinColumns = {
-                    @JoinColumn(name = "writer_id")
-            }, inverseJoinColumns = {@JoinColumn(name = "post_id")})*/
+
     private List<Post> posts = new ArrayList<>();
 
     @Column(name = "writerstatus")

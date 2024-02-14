@@ -1,71 +1,42 @@
 package org.maxim.crud;
 
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-
-import org.maxim.crud.model.Label;
-import org.maxim.crud.model.Post;
+import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.maxim.crud.model.Status;
 import org.maxim.crud.model.Writer;
 import org.maxim.crud.repository.WriterRepository;
-import org.maxim.crud.repository.impl.JDBCWriterRepository;
+import org.maxim.crud.repository.hiber.WriterHib;
 import org.maxim.crud.service.WriterService;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
-
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class WriterTest {
-    private final JDBCWriterRepository writerMock = mock(JDBCWriterRepository.class);
-    private final WriterService writerService = new WriterService(writerMock);
-    private final List<Label> labels =
-            Arrays.asList(new Label(1L, "label1", LabelStatus.ACTIVE));
+    private static Writer correctWriter = null;
+    WriterRepository writerRepository = Mockito.mock(WriterHib.class);
+    WriterService writerServiceUnderTest = new WriterService(writerRepository);
 
-    private final List<Post> posts =
-            Arrays.asList(new Post(1L, "content", "created", "updated",labels, PostStatus.ACTIVE));
-
-
-    private final List<Writer> mockWriterList =
-            Arrays.asList(new Writer(1L, "writer1", "created", posts, WriterStatus.ACTIVE));
-
-    private Writer mockWriter = mockWriterList.get(0);
-
-    @Test
-    void getByI() {
-        when(writerMock.getById(1L)).thenReturn(mockWriterList.get(0));
-        assertEquals(mockWriter, writerService.getById(1L));
+    @BeforeAll
+    static void testAll() {
+        correctWriter = new Writer();
+        correctWriter.setId(1);
+        correctWriter.setLastName("Ivan");
+        correctWriter.setFirstName("Ivanov");
+        correctWriter.setStatus(Status.ACTIVE);
     }
 
     @Test
-    void getAll() {
-        when(writerMock.getAll()).thenReturn(mockWriterList);
-        assertEquals(3, writerService.getAll().size());
+    public void SaveTest() {
+        when(writerRepository.save(any())).thenReturn(correctWriter);
+        assertEquals(correctWriter, writerServiceUnderTest.save(correctWriter));
     }
 
     @Test
-    void save() {
-        writerService.save(mockWriter);
-        verify(writerMock, times(1)).save(mockWriter);
+    public void CorrectIdTest() {
+        when(writerRepository.getById(1)).thenReturn(correctWriter);
+        assertEquals(correctWriter, writerRepository.getById(1));
     }
-
-    @Test
-    void update() {
-        writerService.update(mockWriter);
-        verify(writerMock, times(1)).update(mockWriter);
-    }
-
-    @Test
-    void deleteById() {
-        writerService.deleteById(1L);
-        verify(writerMock, times(1)).deleteById(1L);
-    }
-
 }

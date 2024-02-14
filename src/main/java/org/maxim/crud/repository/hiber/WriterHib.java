@@ -3,22 +3,107 @@ package org.maxim.crud.repository.hiber;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.maxim.crud.model.Post;
+import org.maxim.crud.model.Status;
 import org.maxim.crud.repository.WriterRepository;
 import org.maxim.crud.utils.Utils;
 import org.maxim.crud.model.Writer;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class WriterHib implements WriterRepository {
 
-    private final SessionFactory sessionFactory = Utils.getSessionFactory();
+   private void rollbackTransaction(Transaction t) {
+       if (t != null) {
+           t.rollback();
+           System.err.println("RRoll back");
+       }
+   }
 
-
-    private Session openSession() {
-        return sessionFactory.getCurrentSession();
+    @Override
+    public Writer save(Writer writer) {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            session.persist(writer);
+            transaction.commit();
+            return writer;
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return null;
+        }
     }
+
+    @Override
+    public List<Writer> getAll() {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            List<Writer> writers = session.createQuery("FROM Writer", Writer.class).list();
+            transaction.commit();
+            return writers;
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return null;
+    }
+  }
+
+    @Override
+    public Writer getById(Integer id) {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            Writer writer = session.get(Writer.class, id);
+            transaction.commit();
+            return writer;
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    @Override
+    public Writer update(Writer writer) {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            session.merge(writer);
+            transaction.commit();
+            return writer;
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public boolean deleteById(Integer id) {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            Writer writer = session.get(Writer.class, id);
+            writer.setStatus(Status.DELETED);
+            session.merge(writer);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return false;
+        }
+    }
+    }
+
+
+
+
+
 
     /*public Writer getId(Writer id, Long writerId) {
          Writer writer = null;
@@ -78,57 +163,3 @@ public class WriterHib implements WriterRepository {
             return Collections.emptyList();
         }
     }*/
-
-    @Override
-    public Optional<Writer> save(Writer writer) {
-        if (writer != null) {
-            try (Session session = Utils.getSessionFactory().openSession()) {
-                session.beginTransaction();
-                session.persist(writer);
-                session.getTransaction().commit();
-            }
-        }
-        return Optional.ofNullable(writer);
-    }
-
-    public Optional<Writer> update(Writer writer) {
-        try (Session session = Utils.getSessionFactory().openSession()) {
-            session.beginTransaction();
-            session.merge(writer);
-            session.getTransaction().commit();
-            return Optional.ofNullable(writer);
-        }
-    }
-
-    @Override
-    public Optional<Writer> getId(Integer id) {
-        try (Session session = openSession()) {
-            Transaction transaction = session.beginTransaction();
-            Writer writer = session.get(Writer.class, id);
-            transaction.commit();
-            return Optional.ofNullable(writer);
-        }
-    }
-
-
-    @Override
-    public Optional<List<Writer>> getAll() {
-        try (Session session = openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<Writer> writers = session.createQuery("SELECT w FROM Writer w", Writer.class).getResultList();
-            transaction.commit();
-            return Optional.ofNullable(writers);
-        }
-    }
-
-    @Override
-    public Optional<Post> deleteById(Integer id) {
-        try (Session session = openSession()) {
-            Transaction transaction = session.beginTransaction();
-            Writer writer = session.get(Writer.class, id);
-            session.remove(writer);
-            transaction.commit();
-            return Optional.empty();
-        }
-    }
-}

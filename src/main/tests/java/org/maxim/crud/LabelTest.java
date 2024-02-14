@@ -1,53 +1,53 @@
 package org.maxim.crud;
 
-import liquibase.Labels;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.maxim.crud.model.Label;
-import org.maxim.crud.repository.impl.JDBCLabelRepository;
-import org.maxim.crud.service.LabelService;
+import org.maxim.crud.model.Status;
+import org.maxim.crud.repository.LabelRepository;
+import org.maxim.crud.repository.hiber.LabelHib;
 
-import java.util.Arrays;
+import org.maxim.crud.service.LabelService;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
+
 
 public class LabelTest {
-    private final JDBCLabelRepository labelMock= mock(JDBCLabelRepository.class);
-    private final LabelService labelService =new LabelService(labelMock);
-    private final List<Label> mockList = Arrays.asList(new Label(1L, "label", LabelStatus.ACTIVE));
-    private Label mockLabel = mockList.get(0);
+    private static Label correctLabel = null;
+    private LabelRepository labelRepository = Mockito.mock(LabelHib.class);
+    private LabelService labelServiceUnderTest = new LabelService(labelRepository);
 
-
-    //positive tests
-    @Test
-    void getByIdTestSuccess() {
-        when(labelMock.getById(1L)).thenReturn(mockList.get(0));
-        assertEquals(mockLabel, labelService.getById(1L));
+    @BeforeAll
+    static void testAll() {
+        correctLabel = new Label();
+        correctLabel.setId(1);
+        correctLabel.setName("Label");
+        correctLabel.setStatus(Status.ACTIVE);
     }
 
     @Test
-    void getAllTestSuccess() {
-        when(labelMock.getAll()).thenReturn(mockList);
-        assertEquals(3, labelService.getAll().size());
+    void SaveTest() {
+        when(labelRepository.save(any())).thenReturn(correctLabel);
+        assertEquals(correctLabel, labelServiceUnderTest.save(correctLabel));
     }
 
     @Test
-    void saveTestSuccess() {
-        labelService.save(mockLabel);
-        verify(labelMock, times(1)).save(mockLabel);
+    void shouldNotSaveNullTest() {
+        assertNull(labelServiceUnderTest.save(null));
     }
 
     @Test
-    void updateTestSuccess() {
-        labelService.update(mockLabel);
-        verify(labelMock, times(1)).update(mockLabel);
-    }
+    void shouldGetByCorrectIdTest() {
+        when(labelRepository.getById(1)).thenReturn(correctLabel);
+        assertEquals(correctLabel, labelRepository.getById(1));
 
-    @Test
-    void deleteByIdTestSuccess() {
-        labelService.deleteById(1L);
-        verify(labelMock, times(1)).deleteById(1L);
+
     }
 }

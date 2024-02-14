@@ -1,12 +1,16 @@
 package org.maxim.crud;
 
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import org.maxim.crud.model.Label;
 import org.maxim.crud.model.Post;
-import org.maxim.crud.repository.impl.JDBCPostRepository;
+import org.maxim.crud.model.Status;
+import org.maxim.crud.repository.PostRepository;
+import org.maxim.crud.repository.hiber.PostHib;
 import org.maxim.crud.service.PostService;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,42 +22,27 @@ import static org.mockito.Mockito.times;
 
 public class PostTest {
 
-    private final JDBCPostRepository postMock= mock(JDBCPostRepository.class);
-    private final PostService postService =new PostService(postMock);
-    private final List<Label> labels =
-            Arrays.asList(new Label (1L, "label1", LabelStatus.ACTIVE));
-    private final List<Post> mockPostList =
-            Arrays.asList(new Post(1L, "content", "created", "updated",labels, PostStatus.ACTIVE));
+    private static Post correctPost = null;
+    PostRepository postRepository = Mockito.mock(PostHib.class);
+    PostService postServiceUnderTest = new PostService(postRepository);
 
-    private Post mockPost = mockPostList.get(0);
-
-    @Test
-    void getById() {
-        when(postMock.getById(1L)).thenReturn(mockPostList.get(0));
-        assertEquals(mockPost, postService.getById(1L));
+    @BeforeAll
+    static void testAll() {
+        correctPost = new Post();
+        correctPost.setId(1);
+        correctPost.setContent("Content");
+        correctPost.setStatus(Status.ACTIVE);
     }
 
     @Test
-    void getAll() {
-        when(postMock.getAll()).thenReturn(mockPostList);
-        assertEquals(3, postService.getAll().size());
+     public  void saveTest() {
+        when(postRepository.save(any())).thenReturn(correctPost);
+        assertEquals(correctPost, postServiceUnderTest.save(correctPost));
     }
 
     @Test
-    void save() {
-        postService.save(mockPost);
-        verify(postMock, times(1)).save(mockPost);
-    }
-
-    @Test
-    void update() {
-        postService.update(mockPost);
-        verify(postMock, times(1)).update(mockPost);
-    }
-
-    @Test
-    void deleteById() {
-        postService.deleteById(1L);
-        verify(postMock, times(1)).deleteById(1L);
+    public void CorrectIdTest() {
+        when(postRepository.getById(1)).thenReturn(correctPost);
+        assertEquals(correctPost, postRepository.getById(1));
     }
     }

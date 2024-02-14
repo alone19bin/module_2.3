@@ -1,35 +1,42 @@
 package org.maxim.crud.service;
 
-import org.maxim.crud.repository.hiber.LabelHib;
-import org.maxim.crud.model.Label;
 
+
+
+import org.maxim.crud.model.Label;
+import org.maxim.crud.repository.LabelRepository;
+import org.maxim.crud.repository.hiber.LabelHib;
 
 import java.util.List;
 
 public class LabelService {
-    private final LabelHib labelHib;
-
-    public LabelService(LabelHib labelDao) {
-        this.labelHib = labelDao;
-    }
+    private final LabelRepository labelRepository;
 
     public LabelService() {
-        this.labelHib = new LabelHib();
+        labelRepository = new LabelHib();
     }
 
-    public List<Label> getLabels() {
-        return labelHib.getLabels();
+    public LabelService(LabelRepository labelRepository) {
+        this.labelRepository = labelRepository;
     }
-    public Label getLabel(Integer labelId) {
-        return labelHib.getLabelById(labelId);
+
+    public Label save(Label labelToSave) {
+        return labelRepository.save(labelToSave);
     }
-    public Label saveLabel(Label label) {
-        return labelHib.saveLabel(label);
+
+    public List<Label> getAll() {
+        return labelRepository.getAll();
     }
-    public Label update (Label label) {
-        return labelHib.update(label);
+
+    public Label getById(int id) {
+        return labelRepository.getById(id);
     }
-    public void deleteById(Integer integer) {
-        labelHib.deleteById(integer);
+
+    public Label update(Label label) {
+        return labelRepository.update(label);
+    }
+
+    public boolean deleteById(int id) {
+        return labelRepository.deleteById(id);
     }
 }

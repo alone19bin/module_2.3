@@ -11,13 +11,13 @@ import java.util.Scanner;
 
 public class LabelView {
 
-    private final Scanner scanner = new Scanner(System.in);
-    LabelController labelController = new LabelController();
+    private final Scanner sc = new Scanner(System.in);
+    private final LabelController labelController = new LabelController();
 
     public void consoleStart() {
         boolean isExit = false;
         while (true) {
-            Integer views = scanner.nextInt();
+            Integer views = sc.nextInt();
             switch (views) {
                 case 1:
                     create();
@@ -41,66 +41,90 @@ public class LabelView {
             if (isExit)
                 break;
         }
-        scanner.close();
+        sc.close();
     }
 
     public void create() {
-        Label createdLabel = new Label();
-        System.out.println("Create lable");
-        createdLabel.setStatus(Status.ACTIVE);
-        System.out.println("Enter name");
-        String name = scanner.nextLine();
-        createdLabel.setName(name);
-        try {
-            labelController.createlabel(createdLabel);
-            System.out.println("Label created: " + createdLabel);
-        } catch (Exception e) {
-            System.out.println("Enter in label create");
+        System.out.println("New Label");
+        System.out.print("Name: ");
+        String labelName = sc.nextLine();
+        Label newLabel = labelController.add(labelName);
+        if (newLabel != null) {
+            System.out.println("Add new label with ID " + newLabel.getId());
+        } else {
+            System.out.println("Error IN create new label.");
         }
     }
 
 
     public void update() {
-        try {
-            Integer id = Integer.parseInt(scanner.nextLine());
-            Label labelToUpdate = labelController.getLabel(id);
-                System.out.println("Enter new name: ");
-                String name = scanner.nextLine();
-                labelToUpdate.setName(name);
-                labelController.updateLabel(labelToUpdate);
-                System.out.println("Label updated: " + labelToUpdate);
-        } catch (Exception e) {
-            e.getMessage();
-            System.out.println("Error in label update");
+        System.out.print("Edit label with ID: ");
+
+        Integer id = sc.nextInt();
+        sc.nextLine();
+
+        Label label = labelController.getById(id);
+        if (label != null) {
+            System.out.println("Current name: " + label.getName());
+            System.out.print("New name: ");
+            String newName = sc.nextLine();
+
+
+            System.out.println("Current status: " + label.getStatus());
+            String action = (label.getStatus() == Status.ACTIVE) ? "Delete" : "Restore";
+            System.out.print(action + "yes or no ");
+            String statusReply = sc.nextLine();
+            boolean changeStatus = "yes".equalsIgnoreCase(statusReply);
+            Label updatedLabel = labelController.update(label, newName, changeStatus);
+            if (updatedLabel != null) {
+                System.out.println("Update label ID "+ updatedLabel.getId() + ": OK");
+            } else {
+                System.out.println("Couldn't update or write");
+            }
         }
+        else
+            System.out.println("ID " + id + "  not found");
     }
 
 
     public void delete() {
-        try {
-            Integer id = Integer.parseInt(scanner.nextLine());
-            Label labelToDelete = labelController.getLabel(id);
-            if (labelToDelete.getId() == -1) {
-                System.out.println("No such label with ID " + id);
-            } else {
-                labelController.deleteById(id);
-                System.out.println("Label deleted: " + labelToDelete);
-            }
-        } catch (Exception e) {
-            e.getMessage();
-            System.out.println("Error while deleting label with ID");
+        System.out.println("Delete Label");
+        System.out.print("ID to delete: ");
+        Integer id = sc.nextInt();
+        sc.nextLine();
+        if (labelController.deleteById(id)) {
+            System.out.println(id + " is deleted");
+        } else {
+            System.out.println("ID " + id + "  not found");
         }
     }
 
 
     public void read() {
-        try {
-            List<Label> labels = labelController.getLabels();
-            System.out.println("Labels");
-            labels.forEach(System.out::println);
-        } catch (Exception e) {
-            e.getMessage();
-            System.out.println("Error in label read");
+        System.out.print("Show label with ID: ");
+
+        Integer id = sc.nextInt();
+        sc.nextLine();
+        System.out.printf("ID" +  " NAME " + " STATUS");
+
+        Label label = labelController.getById(id);
+        if (label != null) {
+            System.out.printf( label.getId() + " " +  label.getName() + " "+ label.getStatus());
+        } else {
+            System.out.println("ID " + id + " not found");
+        }
+    }
+
+   public void showAllLabels() {
+        System.out.println("List of all Labels");
+        System.out.printf( "ID " +  " NAME " +  " STATUS");
+        List<Label> labels = labelController.getAll();
+        if (labels != null && !labels.isEmpty()) {
+            for (var label : labels) {
+                System.out.printf(label.getId() + " " + label.getName() + " " + label.getStatus());
+            }
+        } else {
+            System.out.println("List is null.");
         }
     }
 

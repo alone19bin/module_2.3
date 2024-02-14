@@ -27,13 +27,13 @@ public class Post {
     private String updated;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "postlabels",
+    @JoinTable(name = "post_labels",
             joinColumns = {
                     @JoinColumn(name = "post_id")
             }, inverseJoinColumns = {@JoinColumn(name = "label_id")})
     private List<Label> labels;
 
-    @Column(name = "poststatus")
+    @Column(name = "post_status")
     @Enumerated(EnumType.STRING)
     private Status status;
 

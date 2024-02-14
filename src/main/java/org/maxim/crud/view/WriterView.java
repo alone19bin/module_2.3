@@ -2,18 +2,19 @@ package org.maxim.crud.view;
 
 import org.maxim.crud.controller.PostController;
 import org.maxim.crud.controller.WriterController;
+import org.maxim.crud.model.Post;
 import org.maxim.crud.model.Status;
 import org.maxim.crud.model.Writer;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
 public class WriterView {
     private final WriterController writerController = new WriterController();
-    private final Scanner scanner = new Scanner(System.in);
-
-
+    private final Scanner sc = new Scanner(System.in);
+    private final PostController postController = new PostController();
     public void consoleStart() {
         int views;
         do {
@@ -24,8 +25,8 @@ public class WriterView {
                     "4. Read Writer\n" +
                     "5. Add Post to Writer\n" +
                     "6. Exit. \n");
-            views = scanner.nextInt();
-            scanner.nextLine();
+            views = sc.nextInt();
+            sc.nextLine();
             switch (views) {
                 case 1:
                     create();
@@ -47,76 +48,129 @@ public class WriterView {
             }
         }
         while (views != 0);
-        scanner.close();
+        sc.close();
     }
 
 
     public void create() {
-        Writer createdWriter = new Writer();
-        System.out.println("Enter Firstname");
-        String firstName = scanner.nextLine();
-        System.out.println("Enter second name: ");
-        String lastName = scanner.nextLine();
-        createdWriter.setFirstName(firstName);
-        createdWriter.setLastName(lastName);
-        createdWriter.setStatus(Status.ACTIVE);
-        try {
-            writerController.createWriter(createdWriter);
-            System.out.println("Writer created");
-        } catch (Exception e) {
-            System.out.println("Error in create writer");
+        System.out.println("Create new Writer");
+        System.out.print("Last name: ");
+        String lastName = sc.nextLine();
+        System.out.print("First name: ");
+        String firstName = sc.nextLine();
+
+        System.out.println("Add posts for the writer by ID");
+        new PostView().showAllPosts();
+        List<Post> writerPosts = new ArrayList<>();
+        for (Integer chosenPostId;;) {
+            System.out.print("Post ID to add: ");
+            chosenPostId = sc.nextInt();
+            if (chosenPostId == -1) break;
+            Post postToAdd = postController.getById(chosenPostId);
+            if (postToAdd != null) {
+                writerPosts.add(postToAdd);
+            } else {
+                System.out.println("Wrond ID");
+            }
+        }
+        sc.nextLine();
+
+        Writer addedWriter = writerController.add(lastName, firstName, writerPosts);
+        if (addedWriter != null) {
+            System.out.println("Added 1 new writer with ID " + addedWriter.getId());
+        } else {
+            System.out.println("Error adding new writer.");
         }
     }
 
 
     public void update() {
-        read();
-        System.out.println("Update writer");
-        Long id = Long.valueOf(Integer.parseInt(scanner.nextLine()));
-        try {
-            Writer writer = writerController.getWriter(id);
-            System.out.println("Enter firstname ");
-            String firstName = scanner.nextLine();
-            System.out.println("Enter lastname: ");
-            String lastName = scanner.nextLine();
-            writer.setFirstName(firstName);
-            writer.setLastName(lastName);
-            writerController.updateWriter(writer);
-            System.out.println("Writer updated");
-        } catch (Exception e) {
-            System.out.println("Error in writer update");
+        System.out.print("Edit writer with ID: ");
+        Integer id = sc.nextInt();
+        sc.nextLine();
+
+        Writer writer = writerController.getById(id);
+        if (writer != null) {
+            System.out.println("Current lastName: " + writer.getLastName());
+            System.out.print("New last name: ");
+            String newLastName = sc.nextLine();
+
+            System.out.println("Current firstName: " + writer.getFirstName());
+            System.out.print("New first name: ");
+            String newFirstName = sc.nextLine();
+
+            System.out.println("Current posts");
+            System.out.println("ID " +  " TITLE");
+            List<Post> writerPosts = writer.getPosts();
+            for (var post : writerPosts) {
+                System.out.printf(post.getId() + " " +  post.getContent());
+            }
+            System.out.println();
+            System.out.println("Enter new post ID");
+            List<Post> newWriterPosts = new ArrayList<>();
+            for (Integer chosenPostId;;) {
+                System.out.print("Post ID to add: ");
+                chosenPostId = sc.nextInt();
+                if (chosenPostId == -1) break;
+                Post postToAdd = postController.getById(chosenPostId);
+                if (postToAdd != null) {
+                    newWriterPosts.add(postToAdd);
+                } else {
+                    System.out.println("Wrong ID");
+                }
+            }
+            sc.nextLine();
+
+            System.out.println("Current status: " + writer.getStatus());
+            String action = (writer.getStatus() == Status.ACTIVE) ? "Delete" : "Restore";
+            System.out.print(action + " yes or no: ");
+            String statusReply = sc.nextLine();
+            boolean changeStatus = "yes".equalsIgnoreCase(statusReply.trim());
+
+            Writer updatedWriter = writerController.update(writer, newLastName, newFirstName, newWriterPosts, changeStatus);
+            if (updatedWriter != null) {
+                System.out.println("Updating writer ID " + updatedWriter.getId());
+            } else {
+                System.out.println("Couldn't update");
+            }
+        } else {
+            System.out.println("ID" + id + " not found");
         }
     }
 
 
     public void delete() {
-        read();
-        System.out.println("Writers");
-        System.out.println("Enter id to delete writer");
-        Integer id = Integer.parseInt(scanner.nextLine());
-        try {
-            writerController.deleteById(id);
-            System.out.println("Writer deleted");
-        } catch (Exception e) {
-            System.out.println("Error in delete writer");
+        System.out.println("Delete Post");
+        System.out.print("ID to delete: ");
+        Integer id = sc.nextInt();
+        sc.nextLine();
+        if (writerController.deleteById(id)) {
+            System.out.println(id + "is deleted");
+        } else {
+            System.out.println("ID " + id + "  not found");
         }
     }
 
 
     public void read() {
-        List<Writer> writers = null;
-        try {
-            System.out.println("Writers");
-            writers = writerController.getWriters();
-        } catch (Exception e) {
-            System.out.println("Error loading writers");
-        }
-        System.out.println("Writers");
-        if (writers != null) {
-            writers.sort(Comparator.comparing(Writer::getId));
-            writers.forEach(System.out::println);
-        }
+        System.out.print("Show writer with ID: ");
+        Integer id = sc.nextInt();
+        sc.nextLine();
+        System.out.printf("ID " +  " NAME " +  " STATUS");
+        Writer writer = writerController.getById(id);
+        if (writer != null) {
+            System.out.println(writer.getId() + " " + writer.getFirstName() + " " + writer.getLastName() + " " +  writer.getStatus());
 
+            System.out.println("Posts");
+            System.out.printf("ID" + "  " + "TITLE");
+            List<Post> writerPosts = writer.getPosts();
+            for (var post : writerPosts) {
+                System.out.printf(post.getId() + " " + post.getContent());
+            }
+            System.out.println();
+        } else {
+            System.out.println("ID " + id + " not found");
+        }
 
     }
 }

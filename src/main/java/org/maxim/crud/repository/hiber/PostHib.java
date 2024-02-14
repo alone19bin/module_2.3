@@ -3,21 +3,103 @@ package org.maxim.crud.repository.hiber;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.maxim.crud.model.Label;
+import org.maxim.crud.model.Status;
 import org.maxim.crud.repository.PostRepository;
 import org.maxim.crud.utils.Utils;
 import org.maxim.crud.model.Post;
 
-import java.util.List;
-import java.util.Optional;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
 
 public class PostHib implements PostRepository {
-    private final SessionFactory sessionFactory = Utils.getSessionFactory();
+    private void rollbackTransaction(Transaction t) {
+        if (t != null) {
+            t.rollback();
+            System.err.println("Roll back");
+        }
+    }
+        @Override
+        public Post save (Post post){
+            Transaction transaction = null;
+            try (Session session = Utils.getSession()) {
+                transaction = session.beginTransaction();
+                session.persist(post);
+                transaction.commit();
+                return post;
+            } catch (Exception e) {
+                rollbackTransaction(transaction);
+                e.printStackTrace();
+                return null;
+            }
+        }
 
-    private Session openSession() {
-        return sessionFactory.getCurrentSession();
+        @Override
+        public List<Post> getAll () {
+            Transaction transaction = null;
+            try (Session session = Utils.getSession()) {
+                transaction = session.beginTransaction();
+                List<Post> posts = session.createQuery("FROM Post", Post.class).list();
+                transaction.commit();
+                return posts;
+            } catch (Exception e) {
+                rollbackTransaction(transaction);
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        public Post getById (Integer id){
+            Transaction transaction = null;
+            try (Session session = Utils.getSession())  {
+                transaction = session.beginTransaction();
+                Post post = session.get(Post.class, id);
+                transaction.commit();
+                return post;
+            } catch (Exception e) {
+                rollbackTransaction(transaction);
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        public Post update (Post post){
+            Transaction transaction = null;
+            try (Session session = Utils.getSession())  {
+                transaction = session.beginTransaction();
+                session.merge(post);
+                transaction.commit();
+                return post;
+            } catch (Exception e) {
+                rollbackTransaction(transaction);
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        public boolean deleteById (Integer id){
+            Transaction transaction = null;
+            try (Session session = Utils.getSession())  {
+                transaction = session.beginTransaction();
+                Post post = session.get(Post.class, id);
+                post.setStatus(Status.DELETED);
+                session.merge(post);
+                transaction.commit();
+                return true;
+            } catch (Exception e) {
+                rollbackTransaction(transaction);
+                e.printStackTrace();
+                return false;
+            }
+        }
     }
 
-    @Override
+
+  /*  @Override
     public Optional<Post> save(Post post) {
         if (post != null) {
             try (Session session = Utils.getSessionFactory().openSession()) {
@@ -43,10 +125,10 @@ public class PostHib implements PostRepository {
     public Optional<Post> getId(Integer id) {
         Post post;
         try (Session session = Utils.getSessionFactory().openSession()) {
-            session.beginTransaction();
-            post = (Post) session.createQuery("FROM Post p LEFT JOIN FETCH p.labels WHERE p.id = :id")
+
+            post = session.createQuery("FROM Post p LEFT JOIN FETCH p.labels WHERE p.id = :id", Post.class)
                     .setParameter("id", id)
-                    .list().get(0);
+                    .getSingleResult();
         }
         return Optional.ofNullable(post);
     }
@@ -70,64 +152,9 @@ public class PostHib implements PostRepository {
             transaction.commit();
             return Optional.ofNullable(post);
         }
-    }
-}
-  /*  public List<Post> getPosts() {
-        try (Session session = Utils.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Post p LEFT JOIN FETCH p.labels ", Post.class)
-                    .setParameter("status", Status.ACTIVE)
-                    .list();
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
-    }
-
-    public Post getPostById(Integer postId){
-        Post post;
-        try (Session session = Utils.getSessionFactory().openSession()) {
-            session.beginTransaction();
-            post = (Post) session.createQuery("FROM Post p LEFT JOIN FETCH p.labels WHERE p.id = :id")
-                    .setParameter("id", postId)
-                    .list().get(0);
-        }
-        if(post != null){
-            return post;
-        } else {
-            throw new IllegalArgumentException("Post not found");
-        }
-    }
-
-    public Post savePost(Post post) {
-        if (post != null) {
-            try (Session session = Utils.getSessionFactory().openSession()) {
-                session.beginTransaction();
-                session.persist(post);
-                session.getTransaction().commit();
-            }
-        }
-        return post;
-    }
-
-    public Post update(Post post){
-            try (Session session = Utils.getSessionFactory().openSession()) {
-                session.beginTransaction();
-                session.merge(post);
-                session.getTransaction().commit();
-                return post;
-            }
-        }
+    }*/
 
 
-
-    public void deleteById(Integer postId){
-        Post post = getPostById(postId);
-            try(Session session = Utils.getSessionFactory().openSession()){
-                session.beginTransaction();
-                post.setStatus(Status.DELETED);
-                session.merge(post);
-                session.getTransaction().commit();
-            }
-        }*/
 
 
 

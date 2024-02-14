@@ -9,29 +9,35 @@ import org.maxim.crud.model.Writer;
 
 import java.util.List;
 import java.util.Optional;
-@RequiredArgsConstructor
+
 public class WriterService {
-    private final WriterRepository writerRepository;
-    private final PostRepository postRepository;
+    WriterRepository writerRepository;
 
-    public Optional<Writer> getById(Integer id) {
-        return writerRepository.getId(id);
+    public WriterService() {
+        writerRepository = new WriterHib();
     }
 
-    public void deleteById(Integer id) {
-        writerRepository.deleteById(id);
+    public WriterService(WriterRepository writerRepository) {
+        this.writerRepository = writerRepository;
     }
 
-    public Optional<List<Writer>> getAll() {
-        return writerRepository.getAll();
-    }
-    public Optional<Writer> save(Writer writer, List<Long> postsId) {
-        save(writer, postsId);
+    public Writer save(Writer writer) {
         return writerRepository.save(writer);
     }
 
-    public Optional<Writer> update(Writer writer, List<Long> postsId) {
-        save(writer, postsId);
+    public List<Writer> getAll() {
+        return writerRepository.getAll();
+    }
+
+    public Writer getById(int id) {
+        return writerRepository.getById(id);
+    }
+
+    public Writer update(Writer writer) {
         return writerRepository.update(writer);
+    }
+
+    public boolean deleteById(int id) {
+        return writerRepository.deleteById(id);
     }
 }

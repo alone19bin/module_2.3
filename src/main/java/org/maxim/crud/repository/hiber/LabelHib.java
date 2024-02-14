@@ -1,69 +1,100 @@
 package org.maxim.crud.repository.hiber;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.maxim.crud.repository.LabelRepository;
 import org.maxim.crud.utils.Utils;
 import org.maxim.crud.model.Label;
 import org.maxim.crud.model.Status;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-public class LabelHib {
-    public Label getLabelById(Integer label_id) {
-        Label label;
-        try (Session session = Utils.getSessionFactory().openSession()) {
-            session.beginTransaction();
-            label = (Label) session.createQuery("FROM Label WHERE id = :id")
-                    .setParameter("id", label_id)
-                    .list().get(0);
-        }
-
-
-        return label;
-    }
-
-    public Label saveLabel(Label label) {
-        if (label != null) {
-            try (Session session = Utils.getSessionFactory().openSession()) {
-                session.beginTransaction();
-                session.persist(label);
-                session.getTransaction().commit();
-            }
-        }
-        return label;
-    }
-
-    public Label update(Label label) {
-            try (Session session = Utils.getSessionFactory().openSession()) {
-                session.beginTransaction();
-                session.merge(label);
-                session.getTransaction().commit();
-                return label;
-            }
-
-    }
-    public void deleteById(Integer integer){
-
-        getLabelById(integer);
-        if(getLabelById(integer).getStatus() != Status.DELETED){
-            try(Session session = Utils.getSessionFactory().openSession()){
-                session.beginTransaction();
-                Label label = session.get(Label.class, integer);
-                label.setStatus(Status.DELETED);
-                session.merge(label);
-                session.getTransaction().commit();
-            }
-        } else {
-            throw new IllegalArgumentException("Label not found");
+public class LabelHib implements LabelRepository {
+    private void rollbackTransaction(Transaction t) {
+        if (t != null) {
+            t.rollback();
+            System.err.println("Roll back");
         }
     }
-    public List<Label> getLabels() {
-        try (Session session = Utils.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Label ", Label.class)
-                    .setParameter("status", Status.ACTIVE)
-                    .list();
+
+    @Override
+    public Label save(Label label) {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            session.persist(label);
+            transaction.commit();
+            return label;
         } catch (Exception e) {
-            return Collections.emptyList();
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return null;
         }
-}
     }
+
+    @Override
+    public List<Label> getAll() {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            List<Label> labels = session.createQuery("FROM Label", Label.class).list();
+            transaction.commit();
+            return labels;
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Label getById(Integer id) {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            Label label = session.get(Label.class, id);
+            transaction.commit();
+            return label;
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Label update(Label label) {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            session.merge(label);
+            transaction.commit();
+            return label;
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public boolean deleteById(Integer id) {
+        Transaction transaction = null;
+        try (Session session = Utils.getSession()) {
+            transaction = session.beginTransaction();
+            Label label = session.get(Label.class, id);
+            label.setStatus(Status.DELETED);
+            session.merge(label);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            e.printStackTrace();
+            return false;
+        }
+    }
+}

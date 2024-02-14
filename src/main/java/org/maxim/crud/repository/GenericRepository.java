@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GenericRepository<T,ID> {
-    Optional<T> save(T target);
-    Optional<T> update(T target);
-    Optional<T> getId(ID id);
-    Optional<List<T>> getAll();
-    Optional<Post> deleteById(ID id);
-
+    List<T> getAll();
+    T getById(ID id);
+    T save(T t);
+    T update(T t);
+    boolean deleteById(ID id);
 }
+
