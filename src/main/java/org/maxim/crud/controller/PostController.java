@@ -16,11 +16,9 @@ import java.util.Optional;
 public class PostController {
     private final PostService postService = new PostService();
 
-    public Post add(String content, String created, String updated, List<Label> labels) {
+    public Post add(String content, List<Label> labels) {
         Post newPost = new Post();
         newPost.setContent(content);
-        newPost.setContent(created);
-        newPost.setContent(updated);
         newPost.setLabels(labels);
         newPost.setStatus(Status.ACTIVE);
         return postService.save(newPost);
@@ -30,17 +28,15 @@ public class PostController {
         return postService.getAll();
     }
 
-    public Post getById(int id) {
+    public Post getById(Integer id) {
         return postService.getById(id);
     }
 
-    public Post update(Post post, String newTitle, String newContent, List<Label> newPostLabels, boolean changeStatus) {
-        boolean changeTitle = (newTitle != null && !newTitle.isEmpty());
+    public Post update(Post post, String newContent, List<Label> newPostLabels, boolean changeStatus) {
         boolean changeContent = (newContent != null && !newContent.isEmpty());
         boolean changeLabels = newPostLabels != null;
 
-        if (!changeTitle && !changeContent && !changeLabels && !changeStatus) return post;
-        if (changeTitle) post.setContent(newTitle);
+        if (!changeContent && !changeLabels && !changeStatus) return post;
         if (changeContent) post.setContent(newContent);
         if (changeLabels) post.setLabels(newPostLabels);
         if (changeStatus) {
@@ -48,6 +44,10 @@ public class PostController {
             post.setStatus(newStatus);
         }
         return postService.update(post);
+    }
+
+    public boolean deleteById(Integer id) {
+        return postService.deleteById(id);
     }
 
     public boolean deleteById(int id) {

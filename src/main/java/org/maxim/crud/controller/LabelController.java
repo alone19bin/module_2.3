@@ -8,7 +8,6 @@ import org.maxim.crud.service.LabelService;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 public class LabelController {
     private final LabelService labelService = new LabelService();
 

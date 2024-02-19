@@ -10,7 +10,7 @@ import org.maxim.crud.service.WriterService;
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
+
 public class WriterController {
     private final WriterService writerService = new WriterService();
 

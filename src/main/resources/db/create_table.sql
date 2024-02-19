@@ -1,3 +1,9 @@
+CREATE TABLE labels(
+                       id SERIAL PRIMARY KEY,
+                       name VARCHAR,
+                       status VARCHAR
+);
+
 CREATE TABLE writers(
                         id SERIAL PRIMARY KEY,
                         first_name VARCHAR,
@@ -7,20 +13,12 @@ CREATE TABLE writers(
 
 CREATE TABLE posts(
                       id SERIAL PRIMARY KEY,
-                      title VARCHAR,
                       content VARCHAR,
+                      created VARCHAR,
+                      updated VARCHAR,
                       status VARCHAR,
                       writer_id BIGINT REFERENCES writers(id)
 );
-
-CREATE TABLE labels(
-                       id SERIAL PRIMARY KEY,
-                       name VARCHAR,
-                       status VARCHAR
-);
-
-
-
 
 CREATE TABLE post_labels(
                             post_id BIGINT REFERENCES posts(id),

@@ -3,34 +3,29 @@ package org.maxim.crud.view;
 import java.util.Scanner;
 
 public class MainView {
-    private final Scanner scanner = new Scanner(System.in);
-    private final WriterView writerView = new WriterView();
-    private final PostView postView = new PostView();
     private final LabelView labelView = new LabelView();
-
+    private final PostView postView = new PostView();
+    private final WriterView writerView = new WriterView();
+    private final Scanner sc = new Scanner(System.in);
 
     public void run() {
-        System.out.println("Choose \n" +
-                "   1. Writer.\n" +
-                "   2. Post.\n" +
-                "   3. Label.\n" +
-                "   4. Exit, \n" );
-        Integer choice = scanner.nextInt();
+        final String MENU = """
+   
+                1) Labels
+                2) Posts
+                3) Writers
+                0) Exit""";
 
-        switch (choice) {
-            case 1:
-                writerView.consoleStart();
-                break;
-            case 2:
-                postView.consoleStart();
-                break;
-            case 3:
-                labelView.consoleStart();
-                break;
-            default:
-                System.out.println("Error");
-                break;
-        }
-        scanner.close();
+        int select;
+        do {
+            System.out.print(MENU + "\nSelect item: ");
+            select = sc.nextInt();
+            switch (select) {
+                case 1 -> labelView.consoleStart();
+                case 2 -> postView.consoleStart();
+                case 3 -> writerView.consoleStart();
+            }
+        } while (select != 0);
     }
 }
+

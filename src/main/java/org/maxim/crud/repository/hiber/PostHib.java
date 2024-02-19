@@ -1,16 +1,12 @@
 package org.maxim.crud.repository.hiber;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.maxim.crud.model.Label;
 import org.maxim.crud.model.Status;
 import org.maxim.crud.repository.PostRepository;
-import org.maxim.crud.utils.Utils;
+import org.maxim.crud.utils.HibernateUtil;
 import org.maxim.crud.model.Post;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.*;
 
 public class PostHib implements PostRepository {
@@ -23,7 +19,7 @@ public class PostHib implements PostRepository {
         @Override
         public Post save (Post post){
             Transaction transaction = null;
-            try (Session session = Utils.getSession()) {
+            try (Session session = HibernateUtil.getSessionFactory().openSession()) {
                 transaction = session.beginTransaction();
                 session.persist(post);
                 transaction.commit();
@@ -38,7 +34,7 @@ public class PostHib implements PostRepository {
         @Override
         public List<Post> getAll () {
             Transaction transaction = null;
-            try (Session session = Utils.getSession()) {
+            try (Session session = HibernateUtil.getSessionFactory().openSession()) {
                 transaction = session.beginTransaction();
                 List<Post> posts = session.createQuery("FROM Post", Post.class).list();
                 transaction.commit();
@@ -53,7 +49,7 @@ public class PostHib implements PostRepository {
         @Override
         public Post getById (Integer id){
             Transaction transaction = null;
-            try (Session session = Utils.getSession())  {
+            try (Session session = HibernateUtil.getSessionFactory().openSession())  {
                 transaction = session.beginTransaction();
                 Post post = session.get(Post.class, id);
                 transaction.commit();
@@ -68,7 +64,7 @@ public class PostHib implements PostRepository {
         @Override
         public Post update (Post post){
             Transaction transaction = null;
-            try (Session session = Utils.getSession())  {
+            try (Session session = HibernateUtil.getSessionFactory().openSession())  {
                 transaction = session.beginTransaction();
                 session.merge(post);
                 transaction.commit();
@@ -83,7 +79,7 @@ public class PostHib implements PostRepository {
         @Override
         public boolean deleteById (Integer id){
             Transaction transaction = null;
-            try (Session session = Utils.getSession())  {
+            try (Session session = HibernateUtil.getSessionFactory().openSession())  {
                 transaction = session.beginTransaction();
                 Post post = session.get(Post.class, id);
                 post.setStatus(Status.DELETED);

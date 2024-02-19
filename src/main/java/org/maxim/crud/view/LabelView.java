@@ -15,9 +15,16 @@ public class LabelView {
     private final LabelController labelController = new LabelController();
 
     public void consoleStart() {
-        boolean isExit = false;
-        while (true) {
-            Integer views = sc.nextInt();
+        int views;
+        do {
+            System.out.print("Select: \n" +
+                    "1. Create Label\n" +
+                    "2. Update Label\n" +
+                    "3. Delete Label\n" +
+                    "4. Read Label\n" +
+                    "5. Exit. \n");
+            views = sc.nextInt();
+            sc.nextLine();
             switch (views) {
                 case 1:
                     create();
@@ -32,15 +39,13 @@ public class LabelView {
                     read();
                     break;
                 case 5:
-                    isExit = true;
                     break;
                 default:
-                    System.out.println("Error");
-                    break;
+                    System.out.println("Select correct number " + views);
+
             }
-            if (isExit)
-                break;
         }
+        while (views != 0);
         sc.close();
     }
 

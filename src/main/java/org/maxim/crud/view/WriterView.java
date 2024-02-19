@@ -16,39 +16,28 @@ public class WriterView {
     private final Scanner sc = new Scanner(System.in);
     private final PostController postController = new PostController();
     public void consoleStart() {
-        int views;
-        do {
-            System.out.print("Select: \n" +
-                    "1. Create Writer\n" +
-                    "2. Update Writer\n" +
-                    "3. Delete Writer\n" +
-                    "4. Read Writer\n" +
-                    "5. Add Post to Writer\n" +
-                    "6. Exit. \n");
-            views = sc.nextInt();
-            sc.nextLine();
-            switch (views) {
-                case 1:
-                    create();
-                    break;
-                case 2:
-                    update();
-                    break;
-                case 3:
-                    delete();
-                    break;
-                case 4:
-                    read();
-                    break;
-                case 6:
-                    break;
-                default:
-                    System.out.println("Select correct number " + views);
 
+        final String MENU = """
+            
+                1) Create 
+                2) update 
+                3) delete 
+                4) read
+              
+                0) Back to Main Menu""";
+        int select;
+
+        do {
+            System.out.print(MENU + "\n ");
+            select = sc.nextInt();
+            sc.nextLine();
+            switch (select) {
+                case 1 -> create();
+                case 2 -> update();
+                case 3 -> delete();
+                case 4 -> read();
             }
-        }
-        while (views != 0);
-        sc.close();
+        } while (select != 0);
     }
 
 

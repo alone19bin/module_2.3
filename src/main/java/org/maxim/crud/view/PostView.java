@@ -2,14 +2,10 @@ package org.maxim.crud.view;
 
 import org.maxim.crud.controller.LabelController;
 import org.maxim.crud.controller.PostController;
-import org.maxim.crud.controller.WriterController;
 import org.maxim.crud.model.Label;
 import org.maxim.crud.model.Post;
 import org.maxim.crud.model.Status;
-import org.maxim.crud.model.Writer;
-import org.maxim.crud.utils.Utils;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class PostView {
@@ -55,7 +51,8 @@ public class PostView {
 
     public void create() {
         System.out.println(" New Post ");
-        System.out.print("Title: ");
+        System.out.print("Content: ");
+        String postContent = sc.nextLine();
 
         System.out.println("Add labels to the post  ID");
         new LabelView().showAllLabels();
@@ -72,7 +69,12 @@ public class PostView {
             }
         }
         sc.nextLine();
-
+        Post newPost = postController.add(postContent, postLabels);
+        if (newPost != null) {
+            System.out.println("Added 1 new pos with ID " + newPost.getId());
+        } else {
+            System.out.println("Error occured while adding new post.");
+        }
     }
 
 

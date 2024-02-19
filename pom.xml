@@ -19,6 +19,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <flyway.version>10.2.0</flyway.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
     </properties>
 
     <dependencies>
