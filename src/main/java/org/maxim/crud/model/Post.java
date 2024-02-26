@@ -2,6 +2,7 @@ package org.maxim.crud.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.List;
 
@@ -21,10 +22,12 @@ public class Post {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "created", columnDefinition = "timestamp default now()", updatable = false)
+    @Column(name = "created")
+    @CreationTimestamp
     private String created;
 
-    @Column(name = "updated", columnDefinition = "timestamp default now()")
+    @Column(name = "updated")
+    @CreationTimestamp
     private String updated;
 
     @ManyToMany(fetch = FetchType.EAGER)

@@ -44,7 +44,7 @@ public class LabelTest {
     }
 
     @Test
-    void shouldGetByCorrectIdTest() {
+    void yCorrectIdTest() {
         when(labelRepository.getById(1)).thenReturn(correctLabel);
         assertEquals(correctLabel, labelRepository.getById(1));
 

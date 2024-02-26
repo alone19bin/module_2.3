@@ -18,7 +18,7 @@ public class MainView {
 
         int select;
         do {
-            System.out.print(MENU + "\nSelect item: ");
+            System.out.print(MENU + "\nSelect: ");
             select = sc.nextInt();
             switch (select) {
                 case 1 -> labelView.consoleStart();

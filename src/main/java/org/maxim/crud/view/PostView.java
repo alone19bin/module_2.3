@@ -6,12 +6,14 @@ import org.maxim.crud.model.Label;
 import org.maxim.crud.model.Post;
 import org.maxim.crud.model.Status;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class PostView {
     private final PostController postController = new PostController();
     private final LabelController labelController = new LabelController();
     private final Scanner sc = new Scanner(System.in);
+
 
     public void consoleStart() {
         int views;
@@ -50,9 +52,13 @@ public class PostView {
 
 
     public void create() {
+        Post createdPost = new Post();
         System.out.println(" New Post ");
         System.out.print("Content: ");
         String postContent = sc.nextLine();
+
+
+       // createdPost.setCreated(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(Calendar.getInstance().getTime()));
 
         System.out.println("Add labels to the post  ID");
         new LabelView().showAllLabels();
@@ -87,9 +93,10 @@ public class PostView {
         Post post = postController.getById(id);
         if (post != null) {
 
-            System.out.println("Current title: " + post.getContent());
-            System.out.println("Current content: " + post.getContent());
+            System.out.println("Current content: " + post.getContent() + " Enter new Content");
+            String newContent = sc.nextLine();
 
+            System.out.println("Uddate time " + post.getUpdated());
             System.out.print("Current labels: ");
             List<Label> currentLabels = post.getLabels();
             for (Label label : currentLabels) {
@@ -116,7 +123,14 @@ public class PostView {
             System.out.print(action + " yes or no ");
             String statusReply = sc.nextLine();
             boolean changeStatus = "yes".equalsIgnoreCase(statusReply.trim());
-
+            Post updatedPost = postController.update(post, newContent, newPostLabels, changeStatus);
+            if (updatedPost != null) {
+                System.out.println("Updating post with ID " + updatedPost.getId() + ": OK");
+            } else {
+                System.out.println("Can't update or write to DB");
+            }
+        } else {
+            System.out.println("ID " + id + " is not found");
 
         }
     }

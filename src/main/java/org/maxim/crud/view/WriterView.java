@@ -148,15 +148,7 @@ public class WriterView {
         System.out.printf("ID " +  " NAME " +  " STATUS");
         Writer writer = writerController.getById(id);
         if (writer != null) {
-            System.out.println(writer.getId() + " " + writer.getFirstName() + " " + writer.getLastName() + " " +  writer.getStatus());
-
-            System.out.println("Posts");
-            System.out.printf("ID" + "  " + "TITLE");
-            List<Post> writerPosts = writer.getPosts();
-            for (var post : writerPosts) {
-                System.out.printf(post.getId() + " " + post.getContent());
-            }
-            System.out.println();
+            System.out.println(writer.getId() + "   " + writer.getFirstName() + "   " + writer.getLastName() + "   " +  writer.getStatus());
         } else {
             System.out.println("ID " + id + " not found");
         }
