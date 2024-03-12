@@ -4,21 +4,34 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>crud_jdbs</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>com.github.gluhov</groupId>
+    <artifactId>file-server</artifactId>
+    <packaging>war</packaging>
+    <version>1.0.0</version>
+    <name>File server</name>
+    <description>REST API File server</description>
 
     <properties>
-        <hibernate.version>6.4.4.Final</hibernate.version>
-        <postgresql.version>42.7.0</postgresql.version>
-        <lombok.vesion>1.18.30</lombok.vesion>
-        <mysql.version>8.0.33</mysql.version>
-        <junit.version>4.13.2</junit.version>
-        <mockito.version>5.8.0</mockito.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <flyway.version>10.2.0</flyway.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lombok.version>1.18.30</lombok.version>
+        <maven.war.plugin.version>3.4.0</maven.war.plugin.version>
+        <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
+        <fileupload2.version>2.0.0-M2</fileupload2.version>
+        <servlet.api.version>6.1.0-M1</servlet.api.version>
+        <jackson.version>2.16.1</jackson.version>
+        <commons.io.version>2.15.1</commons.io.version>
+        <mysql.connector.version>8.0.33</mysql.connector.version>
+        <flyway.version>10.6.0</flyway.version>
+        <junit.platform.launcher.version>1.10.1</junit.platform.launcher.version>
+        <junit.jupiter.version>5.10.1</junit.jupiter.version>
+        <surefire.plugin.version>3.2.5</surefire.plugin.version>
+        <mockito.version>5.8.0</mockito.version>
+        <hibernate.version>6.4.4.Final</hibernate.version>
+        <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
+        <c3p0.version>6.4.2.Final</c3p0.version>
+        <javax-el.version>5.0.0</javax-el.version>
 
     </properties>
 
@@ -26,25 +39,72 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.vesion}</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.connector.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate.orm</groupId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
+            <version>${fileupload2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${servlet.api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>${c3p0.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.expressly</groupId>
+            <artifactId>expressly</artifactId>
+            <version>${javax-el.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${junit.platform.launcher.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -54,17 +114,35 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
-            <version>${flyway.version}</version>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
+    <build>
+        <finalName>FileStorage</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${maven.war.plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.plugin.version}</version>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>
