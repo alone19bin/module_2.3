@@ -1,39 +1,42 @@
 package org.maxim.RestApi.model;
 
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.*;
 import java.util.List;
-
-@Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 @Getter
 @Setter
-@Table(name = "Users")
+@Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Event> events;
 
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    public User() {}
 
-    public User() {
-
-    }
-
-/*public User(String name) {
+    public User(String name) {
         this.name = name;
-        this.status =Status.ACTIVE;
-        this.events =
-}*/
+        this.status = Status.ACTIVE;
+        this.events = null;
+    }
 }

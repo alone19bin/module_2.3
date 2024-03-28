@@ -1,19 +1,21 @@
-CREATE TABLE users (
-                       id BIGINT  PRIMARY KEY,
-                       name VARCHAR(255) NOT NULL
+CREATE TABLE files (
+                       id INT PRIMARY KEY,
+                       name VARCHAR(50) NOT NULL,
+                       file_path VARCHAR(255) NOT NULL,
+                       status VARCHAR(7) NOT NULL
 );
 
-CREATE TABLE files (
-                       id BIGINT  PRIMARY KEY,
-                       name VARCHAR(255) NOT NULL,
-                       file_path VARCHAR(255) NOT NULL,
-                       status varchar(255)
+CREATE TABLE users (
+                       id INT   PRIMARY KEY,
+                       name VARCHAR(100) UNIQUE NOT NULL,
+                       status VARCHAR(7) NOT NULL
 );
 
 CREATE TABLE events (
-                        id BIGINT  PRIMARY KEY,
-                        user_id BIGINT NOT NULL,
-                        file_id BIGINT NOT NULL,
-                        FOREIGN KEY (file_id) REFERENCES Files(id),
-                        FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+                        id INT  PRIMARY KEY,
+                        user_id INT NOT NULL,
+                        file_id INT NOT NULL,
+                        status VARCHAR(7) NOT NULL,
+                        FOREIGN KEY(user_id) REFERENCES users(id),
+                        FOREIGN KEY(file_id) REFERENCES files(id)
 );
